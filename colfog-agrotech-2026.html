@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -409,7 +410,7 @@
             `;
         }
 
-        let chart;
+        let gChart;
         function calc() {
             const rev = parseInt(document.getElementById('i-rev').value);
             const stage = document.getElementById('i-stage').value;
@@ -422,7 +423,7 @@
             document.getElementById('v-net').innerText = fmt(net * 1000000);
             document.getElementById('v-costs').innerText = "-" + fmt(costs * 1000000);
 
-            if (chart) {
+            if (gChart) {
                 // Simplified projection post-interest
                 chart.data.datasets[0].data = [net * 0.4, net, net * 3, net * 12];
                 chart.update();
