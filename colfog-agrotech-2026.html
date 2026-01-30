@@ -1,0 +1,494 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COLFOG AGROTECH - Plan Maestro 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald-600: #059669;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
+        
+        .nav-link { @apply px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:bg-emerald-50 hover:text-emerald-700; }
+        .card-std { @apply bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm transition-all hover:shadow-2xl; }
+        .crop-tab { @apply px-4 py-2.5 rounded-xl font-bold text-[10px] transition-all border border-slate-200 hover:bg-slate-50 uppercase tracking-tighter whitespace-nowrap; }
+        .crop-tab.active { @apply bg-emerald-600 text-white border-emerald-600 shadow-lg; }
+        
+        .chart-wrapper { position: relative; width: 100%; height: 350px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .animate-fade { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        input[type="range"] { @apply accent-emerald-600; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 group cursor-pointer" onclick="window.scrollTo(0,0)">
+                <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-lg group-hover:scale-105 transition-transform">🛰️</div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tighter text-slate-900 uppercase">COLFOG</span>
+                    <span class="text-[10px] font-bold tracking-[0.4em] text-emerald-600 uppercase">AGROTECH</span>
+                </div>
+            </div>
+            <div class="hidden lg:flex space-x-1">
+                <button onclick="scrollToSection('diagnostico')" class="nav-link">Diagnóstico</button>
+                <button onclick="scrollToSection('mercado')" class="nav-link">Mercado</button>
+                <button onclick="scrollToSection('inversion')" class="nav-link">Inversión</button>
+                <button onclick="scrollToSection('cultivos')" class="nav-link">Cultivos</button>
+                <button onclick="scrollToSection('simulador')" class="bg-emerald-600 text-white px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-emerald-900/20">Simulador ROI</button>
+            </div>
+            <button class="lg:hidden p-2 text-slate-600" onclick="toggleMenu()">≡</button>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t p-4 flex flex-col space-y-2 font-bold uppercase text-[10px] tracking-widest">
+            <button onclick="scrollToSection('diagnostico'); toggleMenu()" class="py-2 text-left">Diagnóstico</button>
+            <button onclick="scrollToSection('mercado'); toggleMenu()" class="py-2 text-left">Mercado</button>
+            <button onclick="scrollToSection('inversion'); toggleMenu()" class="py-2 text-left">Inversión</button>
+            <button onclick="scrollToSection('cultivos'); toggleMenu()" class="py-2 text-left">Cultivos</button>
+            <button onclick="scrollToSection('simulador'); toggleMenu()" class="py-2 text-left text-emerald-600">Simulador</button>
+        </div>
+    </nav>
+
+    <!-- Header / Hero -->
+    <header class="bg-slate-900 text-white pt-24 pb-48 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#10b981 1px, transparent 1px); background-size: 40px 40px;"></div>
+        <div class="container mx-auto max-w-5xl text-center relative z-10">
+            <div class="inline-block bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                Propuesta Integral Definitiva • Horizonte 2026
+            </div>
+            <h1 class="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-none">
+                Estrategia <span class="text-emerald-500 italic">Alta Precisión</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
+                Transformando COLFOG AGROTECH en una estructura tecnológica de élite. Apalancando clientes urbanos Pareto para liderar un mercado potencial de **800,000 hectáreas**.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                <div class="p-6 bg-white/5 rounded-[2rem] border border-white/10">
+                    <span class="block text-slate-500 text-[10px] font-bold uppercase mb-2">Tasa LEC Finagro</span>
+                    <span class="text-2xl font-black">IBR + 5%</span>
+                </div>
+                <div class="p-6 bg-white/5 rounded-[2rem] border border-white/10">
+                    <span class="block text-slate-500 text-[10px] font-bold uppercase mb-2">Plazo Financiación</span>
+                    <span class="text-2xl font-black">36 Meses</span>
+                </div>
+                <div class="p-6 bg-emerald-600/20 rounded-[2rem] border border-emerald-500/40">
+                    <span class="block text-emerald-400 text-[10px] font-bold uppercase mb-2">Meta Neta 2026</span>
+                    <span class="text-2xl font-black text-emerald-400">20%</span>
+                </div>
+                <div class="p-6 bg-white/5 rounded-[2rem] border border-white/10">
+                    <span class="block text-slate-500 text-[10px] font-bold uppercase mb-2">IVA Servicios</span>
+                    <span class="text-2xl font-black">EXENTO</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 -mt-24 relative z-20 space-y-32">
+
+        <!-- DIAGNÓSTICO -->
+        <section id="diagnostico" class="scroll-mt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 card-std">
+                    <h3 class="text-2xl font-black mb-8 border-l-4 border-emerald-500 pl-4 uppercase tracking-tighter">Estrategia Híbrida de Caja</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <p class="text-slate-600 leading-relaxed mb-6">
+                                Mantenemos el negocio urbano Pareto (Margen Bruto $\ge$ 60%) como motor de liquidez para absorber la nómina administrativa y fondear la transición tecnológica.
+                            </p>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-emerald-50 rounded-2xl flex items-center">
+                                    <div class="text-2xl mr-4">🏙️</div>
+                                    <p class="text-[11px] text-emerald-800 font-bold uppercase tracking-wider">Urbano Pareto: Generación de flujo mensual.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-2xl flex items-center">
+                                    <div class="text-2xl mr-4">🛸</div>
+                                    <p class="text-[11px] text-slate-800 font-bold uppercase tracking-wider">Agrotech Pro: Expansión y rentabilidad del 20%.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-std bg-slate-900 text-white flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-8 text-center">Nómina 2026 (Élite)</h4>
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
+                                <div><span class="block text-[10px] text-emerald-400 font-bold">2 PILOTOS UAS</span><span class="text-lg font-bold">Equipo Total</span></div>
+                                <span class="font-black text-emerald-400">$6.0M<small class="text-[10px]">/mes</small></span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
+                                <div><span class="block text-[10px] text-rose-500 font-bold">ELIMINACIÓN</span><span class="text-lg font-bold">12 Técnicos</span></div>
+                                <span class="font-black text-rose-500">-$42M<small class="text-[10px]">/mes</small></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-white/10">
+                        <p class="text-[11px] italic text-slate-400 text-center">"Sustitución de ineficiencia manual por precisión DJI."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ANÁLISIS DE MERCADO -->
+        <section id="mercado" class="scroll-mt-24">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Análisis de Oportunidad: 799,000 Ha</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto">Potencial masivo en Eje Cafetero, Valle y Caldas.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 card-std">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+                        <div class="p-4 bg-emerald-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-emerald-700 block uppercase mb-1">Ganadería</span>
+                            <span class="text-xl font-black text-emerald-900">600k Ha</span>
+                        </div>
+                        <div class="p-4 bg-amber-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-amber-700 block uppercase mb-1">Café</span>
+                            <span class="text-xl font-black text-amber-900">100k Ha</span>
+                        </div>
+                        <div class="p-4 bg-yellow-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-yellow-700 block uppercase mb-1">Plátano</span>
+                            <span class="text-xl font-black text-yellow-900">72k Ha</span>
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-emerald-700 block uppercase mb-1">Aguacate Hass</span>
+                            <span class="text-xl font-black text-emerald-900">19k Ha</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-slate-700 block uppercase mb-1">Cítricos</span>
+                            <span class="text-xl font-black text-slate-900">7.5k Ha</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl">
+                            <span class="text-[10px] font-bold text-slate-700 block uppercase mb-1">Guayaba</span>
+                            <span class="text-xl font-black text-slate-900">500 Ha</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-std bg-slate-900 text-white flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Targets B2B Corporativos</h4>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                <h5 class="font-bold text-sm">Empresas Líderes Hass</h5>
+                                <p class="text-[10px] text-slate-500 mt-1">Cartama • Westfalia Fruit • Pacific Fruits • Avofruit • C.I. Hass Colombia</p>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                <h5 class="font-bold text-sm">Asociaciones Valle/Caldas</h5>
+                                <p class="text-[10px] text-slate-500 mt-1">Comités de Cafeteros • Ganaderos locales • Cooperativas de Plátano.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 p-4 bg-emerald-600 rounded-2xl text-center">
+                        <p class="text-xs font-bold uppercase tracking-widest">Capacidad Inicial Objetivo</p>
+                        <p class="text-2xl font-black">500 Ha / Mes</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INVERSIÓN (CAPEX REAL) -->
+        <section id="inversion" class="scroll-mt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div class="card-std border-t-8 border-emerald-600">
+                    <h3 class="text-2xl font-black mb-10 tracking-tighter uppercase">Inversión Inicial Requerida</h3>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span>DJI Agras T25 (Kit Aspersión RTK)</span>
+                            <span class="font-black text-slate-900">$65,000,000</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span>DJI D-RTK 3 Base (Precisión propia)</span>
+                            <span class="font-black text-slate-900">$15,300,000</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span>DJI Mavic 3M (Multiespectral)</span>
+                            <span class="font-black text-slate-900">$27,000,000</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span>Pickup 4x4 (Hilux / D-Max)</span>
+                            <span class="font-black text-slate-900">$90,000,000</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span>Gen. Inverter 2200W + DJI Terra</span>
+                            <span class="font-black text-slate-900">$4,200,000</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-8 border-t border-slate-200">
+                            <span class="text-xl font-black text-slate-900">CAPEX TOTAL</span>
+                            <span class="text-3xl font-black text-emerald-600">$201,500,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-900 text-white p-10 rounded-[3rem] shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-8 opacity-20 text-7xl">🏦</div>
+                        <h4 class="text-emerald-400 font-black uppercase text-[10px] tracking-widest mb-10">Estructura FINAGRO 2026</h4>
+                        <ul class="space-y-6 text-sm text-slate-300">
+                            <li class="flex items-start">
+                                <span class="text-emerald-500 mr-3 font-bold">01</span>
+                                <div>
+                                    <h5 class="font-bold text-white uppercase tracking-tighter">LEC Desarrollo Productivo</h5>
+                                    <p class="text-[11px] text-slate-500 mt-1">Tasa: **IBR + 5%**. Amortización alineada a flujo.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-emerald-500 mr-3 font-bold">02</span>
+                                <div>
+                                    <h5 class="font-bold text-white uppercase tracking-tighter">Plazo 36 Meses</h5>
+                                    <p class="text-[11px] text-slate-500 mt-1">Cuota mensual estimada: **$8.2M - $8.5M**.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-emerald-500 mr-3 font-bold">03</span>
+                                <div>
+                                    <h5 class="font-bold text-white uppercase tracking-tighter">Cero Capital Externo</h5>
+                                    <p class="text-[11px] text-slate-500 mt-1">Sostenibilidad fondeada por el flujo urbano Pareto.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 bg-white rounded-[2.5rem] border border-slate-200 text-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">Estado Tributario de Servicios</span>
+                        <p class="text-4xl font-black text-emerald-600">EXENTO IVA</p>
+                        <p class="text-[10px] text-slate-500 mt-4 italic">"Mayor competitividad en el ticket final al productor."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PORTAFOLIO DE CULTIVOS -->
+        <section id="cultivos" class="scroll-mt-24">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Oportunidad por Cultivo</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto">Sustento técnico para las 800k hectáreas objetivo.</p>
+            </div>
+
+            <div class="flex overflow-x-auto pb-6 mb-10 space-x-2 no-scrollbar border-b border-slate-200">
+                <button onclick="setCrop('ganaderia')" class="crop-tab active" id="c-ganaderia">🐄 Ganadería (600k)</button>
+                <button onclick="setCrop('cafe')" class="crop-tab" id="c-cafe">☕ Café (100k)</button>
+                <button onclick="setCrop('platano')" class="crop-tab" id="c-platano">🍌 Plátano (72k)</button>
+                <button onclick="setCrop('aguacate')" class="crop-tab" id="c-aguacate">🥑 Hass (19k)</button>
+                <button onclick="setCrop('citricos')" class="crop-tab" id="c-citricos">🍋 Cítricos (7.5k)</button>
+                <button onclick="setCrop('guayaba')" class="crop-tab" id="c-guayaba">🍐 Guayaba (500)</button>
+                <button onclick="setCrop('cana')" class="crop-tab" id="c-cana">🎋 Caña</button>
+            </div>
+
+            <div class="bg-white p-8 md:p-16 rounded-[3rem] shadow-xl border border-slate-100 min-h-[500px] animate-fade">
+                <div id="crop-display" class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SIMULADOR FINANCIERO -->
+        <section id="simulador" class="scroll-mt-24 pb-32">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Simulador Estratégico COLFOG 2026</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto">Calcula el impacto del margen neto del 20% basado en el modelo operativo ligero.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                <div class="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="mb-12">
+                            <div class="flex justify-between items-end mb-4">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Revenue Mensual ($M):</label>
+                                <span id="v-rev" class="text-3xl font-black text-emerald-400">180</span>
+                            </div>
+                            <input type="range" id="i-rev" min="100" max="500" value="180" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <div class="mb-12">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Escenario de Eficiencia:</label>
+                            <select id="i-stage" onchange="calc()" class="w-full bg-slate-800 border-none rounded-2xl p-4 text-white font-bold outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="current">2025: Pesado (12 Técnicos - 5% Neta)</option>
+                                <option value="final" selected>2026: COLFOG Agrotech (20% Neta)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 pt-10 border-t border-slate-800 text-sm">
+                        <div class="flex justify-between text-slate-400">
+                            <span>Costos + Cuota Crédito:</span>
+                            <span id="v-costs" class="font-bold text-rose-400">-$0</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-8 border-t border-slate-700">
+                            <span class="text-emerald-500 font-black text-[10px] uppercase tracking-widest text-left">Utilidad Neta <br>Meta Mensual:</span>
+                            <span id="v-net" class="text-4xl font-black text-white">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm flex flex-col">
+                    <h4 class="font-bold text-slate-900 text-center uppercase tracking-widest text-[10px] mb-10">Caja Libre Acumulada Post-Cuota (36 Meses)</h4>
+                    <div class="flex-grow chart-wrapper">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 py-20 border-t border-slate-800 text-center text-slate-500">
+        <div class="flex flex-col items-center mb-8">
+            <div class="bg-emerald-600 p-2 rounded-xl text-white mb-4">🛰️</div>
+            <h2 class="text-2xl font-black text-white tracking-tighter uppercase">COLFOG AGROTECH</h2>
+            <p class="max-w-md mx-auto mt-4 text-[10px] font-bold uppercase tracking-[0.4em] text-emerald-500">Inteligencia Agronómica de Ladera • 2026</p>
+        </div>
+        <div class="flex justify-center space-x-8 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span>RTK Centimétrico Propio</span>
+            <span>•</span>
+            <span>Autonomía Energética Inverter</span>
+            <span>•</span>
+            <span>799k Ha Market</span>
+        </div>
+    </footer>
+
+    <script>
+        const crops = {
+            ganaderia: { title: "Ganadería (600k Ha)", icon: "🐄", problem: "Control de moscas y garrapatas en potreros de difícil acceso. Fertilización ineficiente.", tech: "DJI Agras T25 (Spreading System).", desc: "Resiembra y fertilización ultra-rápida. Tarifa: $110k / Ha.", profit: "Recuperación de capacidad de carga 3x más rápida." },
+            cafe: { title: "Café de Ladera (100k Ha)", icon: "☕", problem: "Roya y Broca en 100,000 hectáreas de ladera (>30°). Escasez de personal.", tech: "DJI Agras T25 + RTK propio + Terrain Follow.", desc: "Aspersión técnica focalizada. Tarifa: $150k / Ha.", profit: "Ahorro de agua del 90%. Cero riesgo laboral en laderas." },
+            platano: { title: "Plátano (72k Ha)", icon: "🍌", problem: "Control de Sigatoka Negra. Aplicación manual lenta y peligrosa.", tech: "DJI Agras T25 (Mapeo NDVI previo).", desc: "Ciclos sistemáticos de aspersión. Tarifa: $110k / Ha.", profit: "Cobertura total foliar (envés) garantizada." },
+            aguacate: { title: "Hass Caldas (19k Ha)", icon: "🥑", problem: "Trips y Ácaros en Pácora, Aguadas y Salamina. Exigencia exportadora.", tech: "Mavic 3 Multispectral + Agras T25 + RTK.", desc: "Penetración profunda de dosel. Tarifa: $150k / Ha.", profit: "Trazabilidad digital para exportadores (Cartama, Westfalia)." },
+            citricos: { title: "Cítricos (7.5k Ha)", icon: "🍋", problem: "7,500 hectáreas bajo amenaza de HLB y deficiencias foliares.", tech: "DJI T25 + SmartFarm (Planificación 3D).", desc: "Mantenimiento nutricional preventivo. Tarifa: $130k / Ha.", profit: "Prolongación de vida útil y uniformidad de fruto." },
+            guayaba: { title: "Guayaba (500 Ha)", icon: "🍐", problem: "Alta incidencia de moscas de la fruta en Caldas.", tech: "Drones con boquillas centrífugas (ULV).", desc: "Protección fungicida/insecticida dirigida. Tarifa: $150k / Ha.", profit: "Reducción de merma y aumento de calidad neta." },
+            cana: { title: "Caña (Panelera)", icon: "🎋", problem: "Fertilización foliar y madurantes en ladera de difícil acceso.", tech: "Mapeo NDVI + Agras T25 RTK.", desc: "Nutrición y madurantes de precisión. Tarifa: $110k / Ha.", profit: "Aumento tangible de Grados Brix en molienda." }
+        };
+
+        function setCrop(key) {
+            document.querySelectorAll('.crop-tab').forEach(t => t.classList.remove('active'));
+            const activeBtn = document.getElementById(`c-${key}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            const d = crops[key];
+            document.getElementById('crop-display').innerHTML = `
+                <div class="animate-fade">
+                    <div class="flex items-center mb-10">
+                        <span class="text-8xl mr-6">${d.icon}</span>
+                        <div>
+                            <h3 class="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">${d.title}</h3>
+                            <p class="text-emerald-600 font-bold uppercase tracking-widest text-[10px] mt-2">Propuesta COLFOG</p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="p-8 bg-slate-50 rounded-3xl">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Desafío Crítico:</h4>
+                            <p class="text-slate-700 font-medium leading-relaxed">${d.problem}</p>
+                        </div>
+                        <div class="p-8 bg-emerald-50 rounded-3xl border border-emerald-100">
+                            <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Tecnología Aplicada:</h4>
+                            <p class="text-emerald-900 font-medium leading-relaxed">${d.tech}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-fade" style="animation-delay: 0.1s">
+                    <div class="mb-10">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Servicio Operativo:</h4>
+                        <p class="text-slate-800 text-xl font-bold leading-tight">${d.desc}</p>
+                    </div>
+                    <div class="pt-10 border-t border-slate-100">
+                        <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4">Resultado ROI:</h4>
+                        <p class="text-slate-900 italic font-semibold text-lg leading-relaxed">"${d.profit}"</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        let chart;
+        function calc() {
+            const rev = parseInt(document.getElementById('i-rev').value);
+            const stage = document.getElementById('i-stage').value;
+            document.getElementById('v-rev').innerText = rev;
+
+            let margin = (stage === 'current' ? 0.05 : 0.20);
+            let net = rev * margin;
+            let costs = rev - net;
+
+            document.getElementById('v-net').innerText = fmt(net * 1000000);
+            document.getElementById('v-costs').innerText = "-" + fmt(costs * 1000000);
+
+            if (chart) {
+                // Simplified projection post-interest
+                chart.data.datasets[0].data = [net * 0.4, net, net * 3, net * 12];
+                chart.update();
+            }
+        }
+
+        function fmt(v) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v); }
+        function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+        function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+
+        window.onload = () => {
+            // Market Analysis Chart
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['Ganadería', 'Café', 'Plátano', 'Aguacate'],
+                    datasets: [{
+                        label: 'Potencial (Hectáreas)',
+                        data: [600000, 100000, 72000, 19000],
+                        backgroundColor: ['#059669', '#d97706', '#fbbf24', '#10b981'],
+                        borderRadius: 10
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: false } } }
+            });
+
+            // Growth Chart
+            const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+            chart = new Chart(ctxGrowth, {
+                type: 'line',
+                data: {
+                    labels: ['Trim 1', 'Trim 2', 'Trim 3', 'Año 1'],
+                    datasets: [{
+                        label: 'Utilidad post-cuota (Millones)',
+                        data: [0, 0, 0, 0],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Profit Doughnut
+            const ctxProfit = document.getElementById('profitChart').getContext('2d');
+            new Chart(ctxProfit, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Costos Op', 'Utilidad Neta (Meta)'],
+                    datasets: [{
+                        data: [80, 20],
+                        backgroundColor: ['#e2e8f0', '#059669'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            setCrop('ganaderia');
+            calc();
+            document.getElementById('i-rev').addEventListener('input', calc);
+        };
+    </script>
+</body>
+</html>
